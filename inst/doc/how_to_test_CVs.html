@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Ben Marwick" />
+
+<meta name="date" content="2016-12-27" />
+
+<title>Testing Coefficients of Variation from multiple samples</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Testing Coefficients of Variation from multiple samples</h1>
+<h4 class="author"><em>Ben Marwick</em></h4>
+<h4 class="date"><em>2016-12-27</em></h4>
+
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>The <a href="https://en.wikipedia.org/wiki/Coefficient_of_variation">coefficient of variation statistic</a> is a simple and widely-used standardized measure of the spread of a set of measurements of a sample. It is a useful value because it allows us to directly compare variation in samples measured with different units, or with very different means. For example, with coefficients of variation we can compare the relative variability of lengths with that of weights, and so forth. It is also known as as relative standard deviation (RSD), and defined as the standard deviation divided by the mean:</p>
+<p><span class="math display">\[c_v = \frac{\sigma}{\mu}\]</span></p>
+<p>The coefficient of variation was introduced by Karl Pearson in <a href="www.jstor.org/stable/90707">1896</a>. Since then it has become widely used in chemistry, engineering, physics, sociology, finance, and other fields. Despite its ubiquity, we lack convenient methods for testing if <span class="math inline">\(c_v\)</span> values from different samples are equal or not. Numerous statistical methods have been described in publications, but until now, none have been implemented in an easy-to-use statistical package. This R package aims to remedy this situation by providing methods for testing for the equality of <span class="math inline">\(c_v\)</span> values from different samples. This will help researchers make decisions when comparing coefficients of variation.</p>
+<p>Note that there are some limitations to using <span class="math inline">\(c_v\)</span> values. The main restriction is that <span class="math inline">\(c_v\)</span> should only be computed for data measured on a ratio scale, as these are the measurements that can only take non-negative values. For example it is not appropriate to compare <span class="math inline">\(c_v\)</span> of measurements made using Celsius and Fahrenheit, because these are interval scales that can take negative values and have arbitrary zero points. When the mean of a variable is zero, the <span class="math inline">\(c_v\)</span> cannot be computed, and when the mean is close to zero and the variable contains both positive and negative values, then the <span class="math inline">\(c_v\)</span> can be inaccurate. A lesser concern is that log-normal data have stationary <span class="math inline">\(c_v\)</span> values, and so they are generally uninformative.</p>
+</div>
+<div id="what-tests-are-included" class="section level2">
+<h2>What tests are included?</h2>
+<p>This package includes two tests:</p>
+<ul>
+<li>the ‘Asymptotic test for the equality of coefficients of variation from k populations’ (Feltz and Miller 1996)<br />
+</li>
+<li>the ‘Modified signed-likelihood ratio test (SLRT) for equality of CVs’ (Krishnamoorthy and Lee 2014)</li>
+</ul>
+<p>We include the Feltz and Miller (1996) test because it is widely cited as an authoritative test for the equality of <span class="math inline">\(c_v\)</span> values that performs better than many approximative tests. It is a ‘gold standard’ test for comparing multiple <span class="math inline">\(c_v\)</span>. Our implementation is based on the following from Feltz and Miller (1996):</p>
+<p>Let <span class="math inline">\(s_i\)</span> be the observed standard deviation of the <span class="math inline">\(i\)</span>th sample (or group of measurements), <span class="math inline">\(x_i\)</span> be the observed mean of the <span class="math inline">\(i\)</span>th sample, and let</p>
+<p><span class="math display">\[m_i=n_i-1\]</span></p>
+<p>and we do not know the population <span class="math inline">\(c_v\)</span>, so let <span class="math inline">\(\widehat{\tau }_c\)</span> be an estimate as follows:</p>
+<p><span class="math display">\[\widehat{\tau }_c = \frac{\left( \sum _{j=1}^km_j\frac{S_j}{\bar{x}_j} \right)}{M}\]</span></p>
+<p>where</p>
+<p><span class="math display">\[M=\sum _{j=1}^m m_j\]</span></p>
+<p>Then the test statistic can be computed with:</p>
+<p><span class="math display">\[\begin{aligned} D'A D= \widehat{\tau }_c^{-2}\left( 0.5+\widehat{\tau }_c^2\right) ^{-1}\left[ \sum _{i=1}^km_i\left(\frac{s_i}{\bar{x}_i} \right)^2-\frac{\widehat{\tau }_c^2}{M} \right] \end{aligned}\]</span></p>
+<p>The <span class="math inline">\(D'AD\)</span> value measures how far each sample <span class="math inline">\(c_v\)</span> is from our estimate of the population <span class="math inline">\(c_v\)</span>. Feltz and Miller (1996) note that the <span class="math inline">\(D'AD\)</span> value distributes as a central <span class="math inline">\(\chi^2\)</span> random variable with <span class="math inline">\(k-1\)</span> degrees of freedom, from which a p-value can be computed.</p>
+<p>We include the Krishnamoorthy and Lee (2014) test as a more recent development with lower rates of type I error, better performance with uneven sample numbers, and more power across a range of conditions. The formulae for the Krishnamoorthy and Lee (2014) are quite involved, and we do not reproduce them here, but refer the reader to the <a href="http://link.springer.com/article/10.1007/s00180-013-0445-2">paper</a>.</p>
+</div>
+<div id="how-to-use-the-tests" class="section level2">
+<h2>How to use the tests?</h2>
+<p>For each test there are two functions, which we demonstrate below. The first function uses raw measurement data as its inputs. The second function uses only summary statistics as its inputs, intended for use when the raw data are not available.</p>
+<p>To install the package:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># we use the devtools package to install from GitHub</span>
+<span class="co"># you may need to run install.packages(&quot;devtools&quot;) first</span>
+devtools::<span class="kw">install_github</span>(<span class="st">&quot;benmarwick/cvequality&quot;</span>)</code></pre></div>
+<div id="using-the-functions-with-raw-data-of-individual-observations" class="section level3">
+<h3>Using the functions with raw data of individual observations</h3>
+<p>To demonstrate the use the functions with raw data we will use Galton’s <a href="http://www.jstor.org/stable/2841583">(1886)</a> observations of heights (in inches) of 934 children in 205 families. This is one of the datasets that Pearson used when he introduced the <span class="math inline">\(c_v\)</span></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># read in the data, we obtained this from the HistData package</span>
+GaltonFamilies &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;GaltonFamilies.csv&quot;</span>)
+
+<span class="kw">library</span>(knitr)
+<span class="kw">kable</span>(<span class="kw">head</span>(GaltonFamilies), <span class="dt">caption =</span> <span class="st">&quot;Preview of first few rows of the GaltonFamilies data&quot;</span>)</code></pre></div>
+<table>
+<caption>Preview of first few rows of the GaltonFamilies data</caption>
+<thead>
+<tr class="header">
+<th align="right">X</th>
+<th align="left">family</th>
+<th align="right">father</th>
+<th align="right">mother</th>
+<th align="right">midparentHeight</th>
+<th align="right">children</th>
+<th align="right">childNum</th>
+<th align="left">gender</th>
+<th align="right">childHeight</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="left">001</td>
+<td align="right">78.5</td>
+<td align="right">67.0</td>
+<td align="right">75.43</td>
+<td align="right">4</td>
+<td align="right">1</td>
+<td align="left">male</td>
+<td align="right">73.2</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="left">001</td>
+<td align="right">78.5</td>
+<td align="right">67.0</td>
+<td align="right">75.43</td>
+<td align="right">4</td>
+<td align="right">2</td>
+<td align="left">female</td>
+<td align="right">69.2</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="left">001</td>
+<td align="right">78.5</td>
+<td align="right">67.0</td>
+<td align="right">75.43</td>
+<td align="right">4</td>
+<td align="right">3</td>
+<td align="left">female</td>
+<td align="right">69.0</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="left">001</td>
+<td align="right">78.5</td>
+<td align="right">67.0</td>
+<td align="right">75.43</td>
+<td align="right">4</td>
+<td align="right">4</td>
+<td align="left">female</td>
+<td align="right">69.0</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="left">002</td>
+<td align="right">75.5</td>
+<td align="right">66.5</td>
+<td align="right">73.66</td>
+<td align="right">4</td>
+<td align="right">1</td>
+<td align="left">male</td>
+<td align="right">73.5</td>
+</tr>
+<tr class="even">
+<td align="right">6</td>
+<td align="left">002</td>
+<td align="right">75.5</td>
+<td align="right">66.5</td>
+<td align="right">73.66</td>
+<td align="right">4</td>
+<td align="right">2</td>
+<td align="left">male</td>
+<td align="right">72.5</td>
+</tr>
+</tbody>
+</table>
+<p>Do male and female children have different variation in their heights? Let’s have a look, first with a plot to get some intuition about the variation:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ggplot2)
+<span class="kw">library</span>(ggbeeswarm)
+<span class="kw">ggplot</span>(GaltonFamilies, 
+       <span class="kw">aes</span>(gender, 
+           childHeight)) +
+<span class="st">  </span><span class="kw">geom_boxplot</span>() +
+<span class="st">  </span><span class="kw">geom_quasirandom</span>(<span class="dt">alpha =</span> <span class="fl">0.05</span>) +
+<span class="st">  </span><span class="kw">theme_bw</span>()</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>Their spreads look quite similar, let’s test our intuition, first with Feltz and Miller’s (1996) asymptotic test:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># test for difference in CVs between boys and girls</span>
+<span class="kw">library</span>(cvequality)
+child_height_by_gender_cv_test &lt;-<span class="st"> </span>
+<span class="kw">with</span>(GaltonFamilies, 
+     <span class="kw">asymptotic_test</span>(childHeight,
+                     gender))</code></pre></div>
+<p>We can repeat the test with Krishnamoorthy and Lee’s (2014) modified signed-likelihood ratio test:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">child_height_by_gender_cv_test_MSLRT &lt;-<span class="st"> </span>
+<span class="kw">with</span>(GaltonFamilies, 
+     <span class="kw">mslr_test</span>(<span class="dt">nr =</span> <span class="fl">1e4</span>, 
+               childHeight,
+               gender))</code></pre></div>
+<table>
+<caption>Summary of tests on the equality of CVs in child heights by gender</caption>
+<thead>
+<tr class="header">
+<th align="left">Test name</th>
+<th align="right">Test statistic</th>
+<th align="right">p-value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">asymptotic</td>
+<td align="right">0.44164</td>
+<td align="right">0.5063320</td>
+</tr>
+<tr class="even">
+<td align="left">M-SLRT</td>
+<td align="right">0.44164</td>
+<td align="right">0.5020861</td>
+</tr>
+</tbody>
+</table>
+<p>We conclude that the <span class="math inline">\(c_v\)</span> values are very similar, and there is no difference in the variation of heights in male and female children.</p>
+<p>For something a little different, let’s look at measurements of 600 stone artefacts from archaeological sites in Berkshire, England dating to the Lower Paleolithic (Fox and Baker 2006). We want to know if the length of the artefacts more variable than the other dimensions.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># read in the data, we obtained this from the archdata package</span>
+handaxes &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;Handaxes.csv&quot;</span>)
+
+<span class="co"># take a quick look</span>
+<span class="kw">kable</span>(<span class="kw">head</span>(handaxes), 
+      <span class="dt">caption =</span> <span class="st">&quot;Preview of first few rows of the handaxes data&quot;</span>)</code></pre></div>
+<table>
+<caption>Preview of first few rows of the handaxes data</caption>
+<thead>
+<tr class="header">
+<th align="right">X</th>
+<th align="left">Catalog</th>
+<th align="right">L</th>
+<th align="right">L1</th>
+<th align="right">B</th>
+<th align="right">B1</th>
+<th align="right">B2</th>
+<th align="right">T</th>
+<th align="right">T1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="left">896.4.1</td>
+<td align="right">134</td>
+<td align="right">69</td>
+<td align="right">79</td>
+<td align="right">65</td>
+<td align="right">57</td>
+<td align="right">41</td>
+<td align="right">22</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="left">909.49.1</td>
+<td align="right">225</td>
+<td align="right">51</td>
+<td align="right">104</td>
+<td align="right">52</td>
+<td align="right">99</td>
+<td align="right">68</td>
+<td align="right">28</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="left">909.49.2</td>
+<td align="right">198</td>
+<td align="right">51</td>
+<td align="right">104</td>
+<td align="right">55</td>
+<td align="right">102</td>
+<td align="right">45</td>
+<td align="right">18</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="left">909.49.3</td>
+<td align="right">159</td>
+<td align="right">36</td>
+<td align="right">78</td>
+<td align="right">33</td>
+<td align="right">78</td>
+<td align="right">37</td>
+<td align="right">13</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="left">909.50.7</td>
+<td align="right">173</td>
+<td align="right">75</td>
+<td align="right">112</td>
+<td align="right">92</td>
+<td align="right">90</td>
+<td align="right">57</td>
+<td align="right">25</td>
+</tr>
+<tr class="even">
+<td align="right">6</td>
+<td align="left">909.63.36</td>
+<td align="right">101</td>
+<td align="right">35</td>
+<td align="right">68</td>
+<td align="right">28</td>
+<td align="right">64</td>
+<td align="right">28</td>
+<td align="right">10</td>
+</tr>
+</tbody>
+</table>
+<p>We need to reshape the data from the one-artefact-per-line format to a long format where the variable names are in one column, and the value for that variable is in another column:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tidyverse)
+handaxes_reshape &lt;-<span class="st"> </span>
+<span class="st">  </span>handaxes %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">select</span>(<span class="kw">c</span>(L, L1, B, B1, B2, T, T1)) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">gather</span>(variable, value) %&gt;%<span class="st"> </span>
+<span class="st">  </span>na.omit
+
+<span class="co"># take a quick look</span>
+<span class="kw">kable</span>(<span class="kw">head</span>(handaxes_reshape), 
+      <span class="dt">caption =</span> <span class="st">&quot;Preview of first few rows of the handaxes data&quot;</span>)</code></pre></div>
+<table>
+<caption>Preview of first few rows of the handaxes data</caption>
+<thead>
+<tr class="header">
+<th align="left">variable</th>
+<th align="right">value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">L</td>
+<td align="right">134</td>
+</tr>
+<tr class="even">
+<td align="left">L</td>
+<td align="right">225</td>
+</tr>
+<tr class="odd">
+<td align="left">L</td>
+<td align="right">198</td>
+</tr>
+<tr class="even">
+<td align="left">L</td>
+<td align="right">159</td>
+</tr>
+<tr class="odd">
+<td align="left">L</td>
+<td align="right">173</td>
+</tr>
+<tr class="even">
+<td align="left">L</td>
+<td align="right">101</td>
+</tr>
+</tbody>
+</table>
+<p>Let’s have a look to get an idea of the variation in each variable:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(handaxes_reshape, 
+       <span class="kw">aes</span>(variable, 
+           value)) +
+<span class="st">  </span><span class="kw">geom_boxplot</span>() +
+<span class="st">  </span><span class="kw">geom_quasirandom</span>(<span class="dt">alpha =</span> <span class="fl">0.02</span>) +
+<span class="st">  </span><span class="kw">theme_bw</span>()</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>It looks like the L variable (length) has much greater variation that the others. Let’s test to see if this is due to chance or not:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">handaxes_asymptotic_test &lt;-<span class="st"> </span>
+<span class="kw">with</span>(handaxes_reshape, 
+     <span class="kw">asymptotic_test</span>(value, 
+                     variable))
+
+handaxes_mlrt_test &lt;-<span class="st"> </span>
+<span class="kw">with</span>(handaxes_reshape, 
+     <span class="kw">mslr_test</span>(<span class="dt">nr =</span> <span class="fl">1e4</span>, 
+               value, 
+               variable))</code></pre></div>
+<table>
+<caption>Summary of tests on the equality of CVs in measurements of different variables of handaxe size</caption>
+<thead>
+<tr class="header">
+<th align="left">Test name</th>
+<th align="right">Test statistic</th>
+<th align="right">p-value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">asymptotic</td>
+<td align="right">309.1919</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">M-SLRT</td>
+<td align="right">309.1919</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p>We see low p-values (rounded to zero in the table the asymptotic test p-value is 8.76610110^{-64}), suggesting that the variation in <span class="math inline">\(c_v\)</span> values across different measurements is not due to chance. Length is more variable than the other dimensions of the handaxes.</p>
+</div>
+<div id="using-the-functions-with-summary-statistics" class="section level3">
+<h3>Using the functions with summary statistics</h3>
+<p>In some circumstances we do not have access to the individual measurement data. For the situations we provide versions of the functions that take summary statistics as input.</p>
+<p>Here’s an example using the same data that Feltz and Miller (1996) present in their paper. They provide mean, <span class="math inline">\(c_v\)</span>, and n for three groups of measurements:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">miller &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">test =</span> <span class="kw">c</span>(<span class="st">'ELISA'</span>, <span class="st">'WEHI'</span>, <span class="st">'`Viral inhibition`'</span>),
+                     <span class="dt">Mean =</span> <span class="kw">c</span>(<span class="fl">6.8</span>, <span class="fl">8.5</span>, <span class="fl">6.0</span>),
+                     <span class="dt">CV =</span>   <span class="kw">c</span>(<span class="fl">0.090</span>, <span class="fl">0.462</span>, <span class="fl">0.340</span>),
+                     <span class="dt">N =</span>    <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">5</span>))</code></pre></div>
+<p>To test for the equality of these <span class="math inline">\(c_v\)</span> values, we need the standard deviations of the observations, which are easily obtained:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># compute SD from mean and cv</span>
+miller$SD &lt;-<span class="st"> </span><span class="kw">with</span>(miller, CV *<span class="st"> </span>Mean)</code></pre></div>
+<p>We can plot to see what to expect from the test:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(miller,
+       <span class="kw">aes</span>(test,
+           Mean)) +
+<span class="st">  </span><span class="co"># points to show mean values</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="dv">4</span>) +
+<span class="st">  </span><span class="co"># lines to show standard deviations</span>
+<span class="st">  </span><span class="kw">geom_linerange</span>(<span class="kw">aes</span>(<span class="dt">ymin =</span> Mean -<span class="st"> </span>SD,
+                     <span class="dt">ymax =</span> Mean +<span class="st"> </span>SD)) +
+<span class="st">  </span><span class="kw">theme_bw</span>()</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>Looking at the plot, we might expect that the ELISA values have significantly less variation that the other two groups. Let’s see what the tests suggest:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">miller_asymptotic_test2 &lt;-<span class="st"> </span>
+<span class="kw">asymptotic_test2</span>(<span class="dt">k =</span> <span class="kw">nrow</span>(miller), 
+                 <span class="dt">n =</span> miller$N, 
+                 <span class="dt">s =</span> miller$SD, 
+                 <span class="dt">x =</span> miller$Mean)</code></pre></div>
+<p>The asymptotic test statistic is 5.5304524, which gives a p-value of 0.0629619. Assuming a typical value of 0.05 for <span class="math inline">\(\alpha\)</span>, this test does <em>not</em> lead us to reject the hypothesis of no difference in variance. So we would conclude that the ELISA values are no less variable than the other two groups.</p>
+<p>Let’s see how the modified signed-likelihood ratio test performs:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">miller_mlrt_test2 &lt;-
+<span class="kw">mslr_test2</span>(<span class="dt">nr =</span> <span class="fl">1e4</span>, 
+           <span class="dt">n =</span> miller$N, 
+           <span class="dt">s =</span> miller$SD, 
+           <span class="dt">x =</span> miller$Mean)</code></pre></div>
+<p>This results in for the test statistic, and a p-value of 0.0368653. This p-value would lead us to reject the hypothesis of no difference in variance. So unlike the asymptotic test, this M-SLR test would conclude that the ELISA values <em>are</em> significantly less variable than the other two groups, consistent with our observations of the plot.</p>
+</div>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<p>Feltz, C. J., &amp; Miller, G. E. (1996). An asymptotic test for the equality of coefficients of variation from k populations. <em>Statistics in Medicine</em>, 15(6), 647-658. <a href="https://www.ncbi.nlm.nih.gov/pubmed/8731006" class="uri">https://www.ncbi.nlm.nih.gov/pubmed/8731006</a> </p>
+<p>Fox, William and Tony Baker. 2006. Dimensions of 600 Acheulean Handaxes from Furze Platt, Maidenhead, Berkshire, England. Online at <a href="http://ele.net/acheulean/FPatROM.htm" class="uri">http://ele.net/acheulean/FPatROM.htm</a>.</p>
+<p>Galton, F. (1886). Regression Towards Mediocrity in Hereditary Stature <em>Journal of the Anthropological Institute</em>, 15, 246-263. <a href="http://www.jstor.org/stable/2841583" class="uri">http://www.jstor.org/stable/2841583</a> </p>
+<p>Krishnamoorthy, K., &amp; Lee, M. (2014). Improved tests for the equality of normal coefficients of variation. <em>Computational Statistics</em>, 29(1-2), 215-232. <a href="http://link.springer.com/article/10.1007/s00180-013-0445-2" class="uri">http://link.springer.com/article/10.1007/s00180-013-0445-2</a> </p>
+<p>Pearson, K. (1896). Mathematical Contributions to the Theory of Evolution. III. Regression, Heredity, and Panmixia. <em>Philosophical Transactions of the Royal Society of London</em>. Series A, Containing Papers of a Mathematical or Physical Character, 187, 253-318. Retrieved from <a href="http://www.jstor.org/stable/90707" class="uri">http://www.jstor.org/stable/90707</a></p>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

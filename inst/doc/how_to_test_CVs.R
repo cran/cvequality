@@ -64,7 +64,8 @@ kable(head(handaxes),
       caption = "Preview of first few rows of the handaxes data")
 
 ## ------------------------------------------------------------------------
-library(tidyverse)
+library(dplyr)
+library(tidyr)
 handaxes_reshape <- 
   handaxes %>% 
   select(c(L, L1, B, B1, B2, T, T1)) %>% 

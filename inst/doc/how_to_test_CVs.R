@@ -4,9 +4,7 @@ knitr::opts_chunk$set(echo = TRUE,
                       message = FALSE)
 
 ## ----eval = FALSE--------------------------------------------------------
-#  # we use the devtools package to install from GitHub
-#  # you may need to run install.packages("devtools") first
-#  devtools::install_github("benmarwick/cvequality")
+#  install.packages("cvequality")
 
 ## ------------------------------------------------------------------------
 # read in the data, we obtained this from the HistData package
@@ -145,4 +143,32 @@ mslr_test2(nr = 1e4,
            s = miller$SD, 
            x = miller$Mean)
 
+
+## ------------------------------------------------------------------------
+set.seed(42)
+df <- data.frame(x = c(rnorm(20, 5, 2), 
+                       rnorm(20, 5, 4)), 
+                 y = c(rep(1, 20), 
+                       rep(2, 20)))
+
+## ------------------------------------------------------------------------
+set.seed(42)
+mslr_test(nr = 10000, x = df$x, y = df$y)
+
+## ------------------------------------------------------------------------
+set.seed(42)
+mslr_test(nr = 10000, x = df$x, y = df$y)
+
+## ------------------------------------------------------------------------
+# repeat it n times to see how the results vary
+n <- 10
+reps <- replicate(n, {set.seed(42); mslr_test(nr = 10000, x = df$x, y = df$y)})
+
+# take a look
+stat <- unlist(reps[seq(1, length(reps), 2)])
+pvals <- unlist(reps[seq(2, length(reps), 2)])
+
+how_many_unique_values <- data.frame(unique_stat_values = length(unique(stat)),
+                                     unique_p_values = length(unique(pvals)))
+kable(how_many_unique_values)
 

@@ -10,6 +10,7 @@ globalVariables(c("stats", "aggregate", "pchisq", "rchisq", "rnorm", "sd"))
 #'
 #' @param x a numeric vector containing individual measurement values
 #' @param y a vector of any type containing a grouping variable
+#' @param seed optional, an integer that is the starting point used in the generation of a sequence of random numbers. Include a seed if you want reproducible output.
 #'
 #' @return a list with the test statistic and p-value
 #' @export
@@ -22,7 +23,11 @@ globalVariables(c("stats", "aggregate", "pchisq", "rchisq", "rnorm", "sd"))
 #'  asymptotic_test(x, y)
 #'
 asymptotic_test <-
-  function(x, y){
+  function(x, y, seed){
+
+    ## set the seed to ensure reproducibiilty
+    if (!missing(seed))
+      set.seed(seed)
 
     if (!is.numeric(x) && (!is.numeric(y) | !is.character(y) | !is.integer(y))) {
       warning("x is not numeric or y is not numeric, character or integer: returning NA")
@@ -77,6 +82,7 @@ asymptotic_test <-
 #' @param n a numeric vector the numer of measurements in each group
 #' @param s a numeric vector the standard deviation of each group
 #' @param x a numeric vector the mean of each group
+#' @param seed optional, an integer that is the starting point used in the generation of a sequence of random numbers. Include a seed if you want reproducible output.
 #'
 #' @return a list with the test statistic and p-value
 #' @export
@@ -95,7 +101,11 @@ asymptotic_test <-
 #'  asymptotic_test2(k = nrow(miller), n = miller$N, s = miller$SD, x = miller$Mean)
 #'
 asymptotic_test2 <-
-  function(k, n, s, x){
+  function(k, n, s, x, seed){
+
+    ## set the seed to ensure reproducibiilty
+    if (!missing(seed))
+      set.seed(seed)
 
 
     if (!is.integer(k) && !is.numeric(k) && !is.integer(n) && !is.numeric(n) && !is.numeric(s) && !is.numeric(x) ){
@@ -142,6 +152,7 @@ asymptotic_test2 <-
 #' @param nr numeric vector length one, number of simulation runs, default is 1e3
 #' @param x a numeric vector containing individual measurement values
 #' @param y a vector of any type containing a grouping variable
+#' @param seed optional, an integer that is the starting point used in the generation of a sequence of random numbers. Include a seed if you want reproducible output.
 #'
 #' @return a list with the test statistic and p-value
 #' @export
@@ -155,7 +166,11 @@ asymptotic_test2 <-
 #'
 #'
 mslr_test <-
-  function(nr = 1e3, x, y){
+  function(nr = 1e3, x, y, seed){
+
+    ## set the seed to ensure reproducibiilty
+    if (!missing(seed))
+      set.seed(seed)
 
     if (!is.numeric(x) && !is.numeric(y) && !is.character(y)) {
       warning("x is not numeric or y is not numeric or character: returning NA")
@@ -224,6 +239,7 @@ mslr_test <-
 #' @param n a numeric vector, the number of observations in each group
 #' @param x a numeric vector, the mean of each group
 #' @param s a numeric vector, the standard deviation of each group
+#' @param seed optional, an integer that is the starting point used in the generation of a sequence of random numbers. Include a seed if you want reproducible output.
 #'
 #' @return a list with the test statistic and p-value
 #' @export
@@ -243,7 +259,11 @@ mslr_test <-
 #'
 #'
 mslr_test2 <-
-  function(nr, n, x, s){
+  function(nr, n, x, s, seed){
+
+    ## set the seed to ensure reproducibiilty
+    if (!missing(seed))
+      set.seed(seed)
 
     if (!is.numeric(nr) &&!is.numeric(n) && !is.integer(n) && !is.numeric(s) && !is.numeric(x)) {
       warning("input values are not numeric: returning NA")
@@ -284,10 +304,15 @@ mslr_test2 <-
 #' @param n ... as above
 #' @param x ...
 #' @param s ...
+#' @param seed optional, an integer that is the starting point used in the generation of a sequence of random numbers. Include a seed if you want reproducible output.
 #'
 #' @return xx
 #'
-LRT_STAT <- function(n, x, s){
+LRT_STAT <- function(n, x, s, seed){
+
+  ## set the seed to ensure reproducibiilty
+  if (!missing(seed))
+    set.seed(seed)
 
   k <- length(x)
   df <- n-1
